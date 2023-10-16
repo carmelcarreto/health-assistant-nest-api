@@ -1,11 +1,14 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, DeleteDateColumn, Entity } from "typeorm";
 
 @Entity()
 export class Diet {
 
-    @PrimaryGeneratedColumn()
+    @Column({primary: true, generated: true})
     id: number;
     
     @Column()
     name: string;
+
+    @DeleteDateColumn()
+    deleteAt: Date;
 }

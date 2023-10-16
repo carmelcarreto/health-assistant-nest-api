@@ -19,16 +19,16 @@ export class DietsController {
 
   @Get(':id')
   findOne(@Param('id') id: number) {
-    return this.dietsService.findOne(+id);
+    return this.dietsService.findOne(id);
   }
 
   @Patch(':id')
   update(@Param('id') id: number, @Body() updateDietDto: UpdateDietDto) {
-    return this.dietsService.update(+id, updateDietDto);
+    return this.dietsService.update(id, updateDietDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: number) {
-    return this.dietsService.remove(+id);
+    return this.dietsService.remove(id);
   }
 }

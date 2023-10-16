@@ -1,26 +1,36 @@
 import { Injectable } from '@nestjs/common';
 import { CreateDietDto } from './dto/create-diet.dto';
 import { UpdateDietDto } from './dto/update-diet.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Diet } from './entities/diet.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class DietsService {
-  create(createDietDto: CreateDietDto) {
-    return 'This action adds a new diet';
+  constructor(
+    @InjectRepository(Diet)
+    private readonly dietRepository: Repository<Diet>,
+  ){}
+
+  async create(createDietDto: CreateDietDto) {
+    const diet = this.dietRepository.create(createDietDto);
+    return await this.dietRepository.save(diet);
   }
 
-  findAll() {
-    return `This action returns all diets`;
+  async findAll() {
+    return await this.dietRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} diet`;
+  async findOne(id: number) {
+    return await this.dietRepository.findOneBy({id});
   }
 
-  update(id: number, updateDietDto: UpdateDietDto) {
-    return `This action updates a #${id} diet`;
+  async update(id: number, updateDietDto: UpdateDietDto) {
+    return await this.dietRepository.update(id, updateDietDto);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} diet`;
+  async remove(id: number) {
+    return this.dietRepository.delete(id);
   }
 }
+
