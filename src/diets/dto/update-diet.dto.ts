@@ -1,11 +1,11 @@
-import { IsInt, IsString, IsOptional } from "class-validator";
+import { IsInt, IsNotEmpty, IsString } from "class-validator";
 
 export class UpdateDietDto {
     @IsInt()
-    @IsOptional()
+    @IsNotEmpty()
     id: number;
 
     @IsString()
-    @IsOptional()
-    name?: string;
+    @IsNotEmpty()
+    name: string;
 }
