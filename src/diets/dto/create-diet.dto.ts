@@ -1,4 +1,4 @@
-import { IsInt, IsString } from "@nestjs/class-validator";
+import { IsInt, IsString } from "class-validator";
 
 export class CreateDietDto {
     @IsInt()
@@ -7,3 +7,4 @@ export class CreateDietDto {
     @IsString()
     name: string;
 }
+
