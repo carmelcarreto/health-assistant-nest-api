@@ -1,9 +1,9 @@
-import { IsInt, IsString, IsOptional } from "@nestjs/class-validator";
+import { IsInt, IsString, IsOptional } from "class-validator";
 
 export class UpdateDietDto {
     @IsInt()
     @IsOptional()
-    id?: number;
+    id: number;
 
     @IsString()
     @IsOptional()
