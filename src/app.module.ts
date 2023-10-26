@@ -3,7 +3,8 @@ import { DietsModule } from './diets/diets.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
-  imports: [DietsModule,
+  imports: [
+    DietsModule,
     TypeOrmModule.forRoot({
       type: 'mysql',
       host: 'localhost',

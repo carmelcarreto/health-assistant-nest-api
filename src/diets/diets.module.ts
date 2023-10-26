@@ -6,7 +6,7 @@ import { Diet } from './entities/diet.entity';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Diet])],
-  controllers: [DietsController],
   providers: [DietsService],
+  controllers: [DietsController],
 })
 export class DietsModule {}

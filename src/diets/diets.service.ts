@@ -59,7 +59,7 @@ export class DietsService {
     const errors = await validate(updateDietDto);
     
     if(errors.length > 0){
-      throw new BadRequestException('Validacion fallida');
+      throw new BadRequestException('La validacion del campo name ha fallado');
     }
     await this.dietRepository.update(id, updateDietDto);
     const updateDiet = await this.dietRepository.findOne({where: {id} });
