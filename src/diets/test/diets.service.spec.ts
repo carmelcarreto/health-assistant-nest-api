@@ -6,7 +6,7 @@ import { CreateDietDto } from '../dto/create-diet.dto';
 import { BadRequestException, ConflictException, NotFoundException } from '@nestjs/common';
 import { UpdateDietDto } from '../dto/update-diet.dto';
 
-describe('Find All diets', () => {
+describe('DietsService: Find All diets', () => {
   let service: DietsService;
   let findMock: jest.Mock;
 
@@ -50,7 +50,7 @@ describe('Find All diets', () => {
   });
 });
 
-describe('Create diet', () => {
+describe('DietsService: Create diet', () => {
   let service: DietsService;
   let createMock: jest.Mock;
 
@@ -100,7 +100,7 @@ describe('Create diet', () => {
   });
 });
 
-describe('FindOne diet by id', () => {
+describe('DietsService: FindOne diet by id', () => {
   let service: DietsService;
   let findOneMock: jest.Mock;
 
@@ -136,13 +136,12 @@ describe('FindOne diet by id', () => {
   });
 });
 
-describe('Update diet', () => {
+describe('DietsService: Update diet', () => {
   let service: DietsService;
   let findOneMock: jest.Mock;
   let updateMock: jest.Mock;
 
   beforeEach(async () => {
-    service: DietsService;
     findOneMock = jest.fn();
     updateMock = jest.fn();
 
@@ -185,7 +184,8 @@ describe('Update diet', () => {
 
     expect(async () => {
       await service.update(id, updateDietDto);
-    }).toThrowError(NotFoundException);
+    }).rejects.toThrow(NotFoundException);
+
   });
 
   it('should throw BadRequestException if validation fails', async () => {
@@ -201,11 +201,11 @@ describe('Update diet', () => {
 
     expect(async () => { await service.update(id, updateDietDto);
     })
-    .toThrowError(BadRequestException);
+    .rejects.toThrow(BadRequestException);
   });
 });
 
-describe('Remove diet by id', () => {
+describe('DietsService: Remove diet by id', () => {
   let service: DietsService;
   let findOneMock: jest.Mock;
   let deleteMock: jest.Mock;
