@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException, ConflictException  } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, ConflictException, InternalServerErrorException  } from '@nestjs/common';
 import { CreateDietDto } from './dto/create-diet.dto';
 import { UpdateDietDto } from './dto/update-diet.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -51,20 +51,31 @@ export class DietsService {
   }
 
   async update(id: number, updateDietDto: UpdateDietDto) {
-    const existingDiet = await this.dietRepository.findOne({ where: {id} });
     
-    if(!existingDiet){
-      throw new NotFoundException(`La dieta con el Id ${id} no existe`);
+    if (typeof id !== 'number') {
+        throw new BadRequestException('El campo "id" debe ser un número.');
     }
+
+    if (typeof updateDietDto.name !== 'string') {
+        throw new BadRequestException('El campo "name" debe ser una cadena de texto');
+    }
+
+    const existingDiet = await this.dietRepository.findOne({ where: { id } });
+
+    if (!existingDiet) {
+        throw new NotFoundException(`La dieta con el Id ${id} no existe`);
+    }
+
     const errors = await validate(updateDietDto);
-    
-    if(errors.length > 0){
-      throw new BadRequestException('La validacion del campo name ha fallado');
+
+    if (errors.length > 0) {
+        throw new BadRequestException('La validación de los campos ha fallado');
     }
+
     await this.dietRepository.update(id, updateDietDto);
-    const updateDiet = await this.dietRepository.findOne({where: {id} });
+    const updateDiet = await this.dietRepository.findOne({ where: { id } });
     return updateDiet;
-  }
+}
 
   async remove(id: number) {
     const existingDiet = await this.dietRepository.findOne({where: {id} });
@@ -72,7 +83,12 @@ export class DietsService {
     if(!existingDiet){
       throw new NotFoundException(`La dieta con el Id ${id} no existe`);
     }
-    await this.dietRepository.remove(existingDiet);
-    return 'La dieta ha sido eliminada exitosamente';
+
+    try{
+      await this.dietRepository.remove(existingDiet);
+      return 'La dieta ha sido eliminada exitosamente';
+    }catch(error){
+      throw new InternalServerErrorException('Error al eliminar la dieta')
+    }
   }
 }
