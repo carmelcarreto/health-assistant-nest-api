@@ -3,9 +3,8 @@ import { Diet } from '../entities/diet.entity';
 import { DietsService } from '../diets.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { CreateDietDto } from '../dto/create-diet.dto';
-import { BadRequestException, ConflictException, NotFoundException, InternalServerErrorException } from '@nestjs/common';
+import { ConflictException, NotFoundException } from '@nestjs/common';
 import { Repository } from 'typeorm';
-import { validate as classValidatorValidate } from 'class-validator';
 
 describe('DietsService', () => {
   let dietRepository: Repository<Diet>;

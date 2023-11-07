@@ -9,4 +9,3 @@ export class Diet {
     @Column()
     name: string;
 }
-

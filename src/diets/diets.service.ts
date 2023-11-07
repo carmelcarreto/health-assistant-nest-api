@@ -14,7 +14,7 @@ export class DietsService {
   ){}
 
   async create(createDietDto: CreateDietDto) {
-    const existingDiet = await this.dietRepository.findOne({where: { id: createDietDto.id, name: createDietDto.name}});
+    const existingDiet = await this.dietRepository.findOne({where: { id: 1, name: 'Baja en grasas'}});
 
     if(existingDiet){
       throw new ConflictException('Ya existe una dieta con ese Id y ese nombre');

@@ -1,34 +1,71 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ValidationPipe, BadRequestException, InternalServerErrorException, ParseIntPipe, NotFoundException } from '@nestjs/common';
 import { DietsService } from './diets.service';
 import { CreateDietDto } from './dto/create-diet.dto';
 import { UpdateDietDto } from './dto/update-diet.dto';
+import { Diet } from './entities/diet.entity';
 
 @Controller('diets')
 export class DietsController {
   constructor(private readonly dietsService: DietsService) {}
 
+  /**
+   * Crea una nueva dieta si tanto el campo "id" como el campo "name" son proporcionados.
+   * @param createDietDto Datos de la nueva dieta.
+   * @returns La nueva dieta creada.
+   */
   @Post()
-  create(@Body() createDietDto: CreateDietDto) {
-    return this.dietsService.create(createDietDto);
+  async create(@Body(new ValidationPipe()) createDietDto: CreateDietDto) {
+    
+    if(!createDietDto.id || !createDietDto.name){
+      throw new BadRequestException('El campo Id y name no pueden estar vacios');
+    }
+    return await this.dietsService.create(createDietDto);
   }
 
   @Get()
-  findAll() {
-    return this.dietsService.findAll();
+  async findAll(): Promise<Diet[]> {
+    try{
+      return await this.dietsService.findAll();
+    }catch(error){
+      throw new InternalServerErrorException('Error al buscar las dietas');
+    }
   }
 
   @Get(':id')
-  findOne(@Param('id') id: number) {
-    return this.dietsService.findOne(id);
+  async findOne(@Param('id', ParseIntPipe) id: number) {
+    if(isNaN(id)){
+      throw new BadRequestException('El Id proporcionado no es valido');
+    }
+    const diet = await this.dietsService.findOne(id);
+    if(!diet){
+      throw new NotFoundException('La dieta no se encontro con el Id proporcionado');
+    }
+    return diet;
   }
 
   @Patch(':id')
-  update(@Param('id') id: number, @Body() updateDietDto: UpdateDietDto) {
+  async update(@Param('id', ParseIntPipe) id: number, @Body() updateDietDto: UpdateDietDto) {
+    if(isNaN(id)){
+      throw new BadRequestException('El Id proporcionado no es valido');
+    }
+    const existingDiet = await this.dietsService.findOne(id);
+
+    if(!existingDiet){
+      throw new NotFoundException('La dieta no se encontro con el Id proporcionado');
+    }
     return this.dietsService.update(id, updateDietDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: number) {
+  async remove(@Param('id', ParseIntPipe) id: number) {
+    if(isNaN(id)){
+      throw new BadRequestException('El Id proporcionado no es valido');
+    }
+    const existingDiet = await this.dietsService.findOne(id);
+    
+    if(!existingDiet){
+      throw new NotFoundException('La dieta no se encontro con el Id proporcionado');
+    }
     return this.dietsService.remove(id);
   }
 }
