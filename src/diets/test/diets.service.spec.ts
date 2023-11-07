@@ -149,29 +149,7 @@ describe('DietsService', () => {
     await expect(service.update(id, updateDietDto)).rejects.toThrowError(NotFoundException);
     expect(updateDietDto).toBeDefined();
 	});
-	/*
-	it('UpdateDiet: Should throw BadRequestException with specific message when field validation fails', async () => {
-    
-    const id = 1;
-    const updateDietDto = {id, name: 'Baja en grasas'};
-
-    const validateSpy = jest.spyOn(classValidatorValidate, 'validate');
-    validateSpy.mockResolvedValue([{
-      property: 'name',
-      constraints: {
-        isString: 'El campo "name" debe ser una cadena de texto'
-      }
-    }]);
-
-    try{
-      await service.update(id, updateDietDto);
-    }catch(error){
-      expect(validateSpy).toHaveBeenCalledWith(updateDietDto);
-      expect(error).toBeInstanceOf(BadRequestException);
-      expect(error.message).toBe('La validación de los campos ha fallado');
-    }
-	});*/
-
+	
   it('DeleteDiet: should remove an existing diet successfully', async () => {
     const id = 1;
     const existingDiet = null;

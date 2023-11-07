@@ -33,9 +33,7 @@ export class DietsController {
 
   @Get(':id')
   async findOne(@Param('id', ParseIntPipe) id: number) {
-    if(isNaN(id)){
-      throw new BadRequestException('El Id proporcionado no es valido');
-    }
+
     const diet = await this.dietsService.findOne(id);
     if(!diet){
       throw new NotFoundException('La dieta no se encontro con el Id proporcionado');
@@ -45,9 +43,7 @@ export class DietsController {
 
   @Patch(':id')
   async update(@Param('id', ParseIntPipe) id: number, @Body() updateDietDto: UpdateDietDto) {
-    if(isNaN(id)){
-      throw new BadRequestException('El Id proporcionado no es valido');
-    }
+  
     const existingDiet = await this.dietsService.findOne(id);
 
     if(!existingDiet){
@@ -58,14 +54,11 @@ export class DietsController {
 
   @Delete(':id')
   async remove(@Param('id', ParseIntPipe) id: number) {
-    if(isNaN(id)){
-      throw new BadRequestException('El Id proporcionado no es valido');
-    }
+  
     const existingDiet = await this.dietsService.findOne(id);
     
     if(!existingDiet){
       throw new NotFoundException('La dieta no se encontro con el Id proporcionado');
     }
-    return this.dietsService.remove(id);
   }
 }
