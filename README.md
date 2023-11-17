@@ -1,40 +1,45 @@
+---
+runme:
+  id: 01HFF5NJ1VQ4YDEN6ERQWPZ1PG
+  version: v2.0
+---
+
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
 </p>
 
-## Ejecutar en desarrollo
+## Run in development
 
-1. Clonar el repositorio
+1. Clone the repository
+2. Execute
 
-2. Ejecutar
-
-```sh
+```sh {"id":"01HFF5NJ1VQ4YDEN6ERD7M8G3A"}
 yarn install
 
 ```
 
-3. Tener Nest CLI instalado
+3. You must have Nest CLI installed
 
-```sh
+```sh {"id":"01HFF5NJ1VQ4YDEN6ERG85P73B"}
 npm i -g @nestjs/cli
 
 ```
 
-4. Levantar la base de datos
+4. Get up the database
 
-```sh
+```sh {"id":"01HFF5NJ1VQ4YDEN6ERHF43MKN"}
 docker-compose up -d
 
 ```
 
-## Stack usado
+## Used Stack
 
 * MySQL
 * Nest
 
 ## Running the app
 
-```bash
+```bash {"id":"01HFF5NJ1VQ4YDEN6ERJCJ7MJN"}
 # development
 $ yarn run start
 
@@ -48,7 +53,7 @@ $ yarn run start:prod
 
 ## Test
 
-```bash
+```bash {"id":"01HFF5NJ1VQ4YDEN6ERP2AHJJX"}
 # unit tests
 $ yarn run test
 
@@ -60,11 +65,11 @@ $ yarn run test:cov
 
 ```
 
-## Descripcion de la API RESTful uso de Swagger
+## Description of RESTfull API using Swagger
 
-## Crear documentacion de los endpoints
+### Create endpoint documentation
 
-```bash
+```bash {"id":"01HFF5NJ1VQ4YDEN6ERPC4AC57"}
 # Installation
 $ npm install --save @nestjs/swagger
 
