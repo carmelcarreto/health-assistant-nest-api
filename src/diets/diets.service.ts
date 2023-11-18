@@ -13,58 +13,63 @@ export class DietsService {
     private readonly dietRepository: Repository<Diet>,
   ){}
 
-  async create(createDietDto: CreateDietDto) {
-    const existingDiet = await this.dietRepository.findOne({where: { id: 1, name: 'Baja en grasas'}});
-
-    if(existingDiet){
-      throw new ConflictException('Ya existe una dieta con ese Id y ese nombre');
+  async create(createDietDto: CreateDietDto): Promise<Diet> {
+    try {
+      const existingDiet = await this.dietRepository.findOne({where: {name: createDietDto.name}});
+      if(existingDiet){
+        throw new ConflictException('There is already a diet with that name');
+      }
+      const diet = this.dietRepository.create(createDietDto);
+      return await this.dietRepository.save(diet);
+    } catch (error) {
+      if(error instanceof ConflictException || error instanceof BadRequestException){
+        throw error;
+      }
+      throw new InternalServerErrorException('Error when creating the diet', error.message);
     }
-
-    const diet = this.dietRepository.create(createDietDto);
-    return await this.dietRepository.save(diet);
   }
 
   async findAll() {
     const diets = await this.dietRepository.find();
 
     if(!diets || diets.length === 0){
-      throw new NotFoundException('No se encontro ninguna dieta');
+      throw new NotFoundException('No diet found');
     }
     return diets;
   }
 
   async findOne(id: number) {  
     const diet = await this.dietRepository.findOne({where: {id} });
-
     if(!diet){
-      throw new NotFoundException(`La dieta con el Id ${id} no existe`);
+      throw new NotFoundException(`Diet with Id ${id} does not exist`);
     }
     return diet;
   }
 
   async update(id: number, updateDietDto: UpdateDietDto) {
-    
-    const existingDiet = await this.dietRepository.findOne({ where: { id } });
-
-    if (!existingDiet) {
-        throw new NotFoundException(`La dieta con el Id ${id} no existe`);
-    }
-
     const errors = await validate(updateDietDto);
-
-    if (errors.length > 0) {
-        throw new BadRequestException('La validación de los campos ha fallado');
+    
+    if(errors.length > 0){
+      throw new BadRequestException(errors);
     }
 
-    const updateDiet = await this.dietRepository.findOne({ where: { id } });
-    return updateDiet;
-}
+    const existingDiet = await this.dietRepository.findOne({ where: {id} });
+    
+    if(!existingDiet){
+      throw new NotFoundException('Diet with Id ${id} was not found');
+    }
+    existingDiet.name = updateDietDto.name;
+    await this.dietRepository.save(existingDiet);
+
+    return existingDiet;
+  }
 
   async remove(id: number) {
     const existingDiet = await this.dietRepository.findOne({where: {id} });
 
     if(!existingDiet){
-      throw new NotFoundException(`La dieta con el Id ${id} no existe`);
+      throw new NotFoundException(`Diet with Id ${id} was not found`);
     }
+    return await this.dietRepository.remove(existingDiet);
   }
-}
+  }
