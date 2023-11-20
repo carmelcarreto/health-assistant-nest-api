@@ -72,4 +72,5 @@ export class DietsService {
     }
     return await this.dietRepository.remove(existingDiet);
   }
-  }
+}
+

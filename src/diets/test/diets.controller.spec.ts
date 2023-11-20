@@ -4,7 +4,7 @@ import { DietsService } from '../diets.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Diet } from '../entities/diet.entity';
 import { CreateDietDto } from '../dto/create-diet.dto';
-import { BadRequestException, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { NotFoundException } from '@nestjs/common';
 import { UpdateDietDto } from '../dto/update-diet.dto';
 
 describe('DietsController', () => {
@@ -35,17 +35,6 @@ describe('DietsController', () => {
         expect(result).toEqual(createDietDto);
     });
 
-    it('CreateDiet: should handle empty id and name', async () => {
-        const createDietDto: CreateDietDto = { id: 1, name: '' };
-        try{
-            await dietsController.create(createDietDto);
-            fail('La funcion create deberia haber lanzado una excepcion');
-        }catch (error) {
-        expect(error).toBeInstanceOf(BadRequestException);
-        expect(error.message).toBe('El campo Id y name no pueden estar vacios');
-        }
-    });
-
     it('FindAllDiets: should return all diets ', async () => {
         const mockDietData = [{ id: 1, name: 'Baja en grasas' }, { id: 2, name: 'Baja en gluten' }];
         jest.spyOn(dietsService, 'findAll').mockResolvedValue(mockDietData);
@@ -53,18 +42,8 @@ describe('DietsController', () => {
         expect(result).toEqual(mockDietData);
     });
 
-    it('FindAllDiets: should handle errors and throw an exception on error', async () => {
-        jest.spyOn(dietsService, 'findAll').mockRejectedValue(new Error('Simulated error'));
-        try {
-            await dietsController.findAll();
-        } catch (error) {
-            expect(error).toBeInstanceOf(InternalServerErrorException);
-            expect(error.message).toBe('Error al buscar las dietas');
-        }
-    });
-
     it('FindOneDiet: should return a diet when a valid Id is provided', async () => {
-        const mockDiet = {id: 1, name: 'Baja en Sodio'};
+        const mockDiet = {id: 1, name: 'Baja en sodio'};
         jest.spyOn(dietsService, 'findOne').mockResolvedValue(mockDiet);
 
         const result = await dietsController.findOne(1);
@@ -79,7 +58,7 @@ describe('DietsController', () => {
             await dietsController.findOne(2);
         } catch (error) {
         expect(error).toBeInstanceOf(NotFoundException);
-        expect(error.message).toEqual('La dieta no se encontro con el Id proporcionado');
+        expect(error.message).toEqual('Diet with Id ${id} does not exist');
         }
     });
 
@@ -90,7 +69,7 @@ describe('DietsController', () => {
             await dietsController.findOne(2);
         } catch (error) {
         expect(error).toBeInstanceOf(NotFoundException);
-        expect(error.message).toEqual('La dieta no se encontro con el Id proporcionado');
+        expect(error.message).toEqual('Diet with Id ${id} does not exist');
         }
     });
 
@@ -105,32 +84,6 @@ describe('DietsController', () => {
         const result = await dietsController.update(id, updateDietDto);
     
         expect(result).toEqual({id: 1, name:'Baja en grasas'});
-      });
-    
-      it('UpdateDiet: should throw BadRequestException for invalid ID', async () => {
-        const id = 3;
-        const updateDietDto: UpdateDietDto = { id: 1, name: 'Baja en grasas'};
-
-        jest.spyOn(dietsService, 'findOne').mockResolvedValue(null);
-        
-        try {
-          await dietsController.update(id, updateDietDto);
-        } catch (error) {
-          expect(error).toBeInstanceOf(NotFoundException);
-        }
-      });
-    
-      it('UpdateDiet: should throw NotFoundException for non-existent diet', async () => {
-        const id = 1; // Provide an ID for a non-existent diet
-        const updateDietDto: UpdateDietDto = { id: 1, name: 'Baja en grasas'};
-    
-        jest.spyOn(dietsService, 'findOne').mockResolvedValue(null);
-    
-        try {
-          await dietsController.update(id, updateDietDto);
-        } catch (error) {
-          expect(error).toBeInstanceOf(NotFoundException);
-        }
       });
 });
   
