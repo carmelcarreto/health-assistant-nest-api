@@ -3,23 +3,20 @@ import { Diet } from '../entities/diet.entity';
 import { DietsService } from '../diets.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { CreateDietDto } from '../dto/create-diet.dto';
-import { ConflictException, NotFoundException } from '@nestjs/common';
+import { ConflictException, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { Repository } from 'typeorm';
+import { UpdateDietDto } from '../dto/update-diet.dto';
 
 describe('DietsService', () => {
   let dietRepository: Repository<Diet>;
   let service: DietsService;
   let findMock: jest.Mock;
-  let createMock: jest.Mock;
-  let findOneMock: jest.Mock;
   let updateMock: jest.Mock;
   let deleteMock: jest.Mock;
   
 
   beforeEach(async () => {
     findMock = jest.fn();
-    createMock = jest.fn();
-    findOneMock = jest.fn();
     updateMock = jest.fn();
     deleteMock = jest.fn();
 
@@ -30,9 +27,9 @@ describe('DietsService', () => {
           provide: getRepositoryToken(Diet), 
           useValue: {
               find: findMock,
+              findOne: jest.fn(),
               create: jest.fn(),
               save: jest.fn(),
-              findOne: jest.fn(),findOneMock,
               update: updateMock,
               remove: deleteMock,
           },
@@ -45,146 +42,106 @@ describe('DietsService', () => {
   });
 
   it('FindAll Diets: should return an array of diets', async () => {
-    const diets = [{ id: 1, name: 'Baja en grasas' }, { id: 2, name: 'Baja en gluten' }];
-
-    findMock.mockResolvedValue(diets);
+    const mockDiets = [{ id: 1, name: 'Baja en grasas' }, { id: 2, name: 'Baja en gluten' }];
+    findMock.mockResolvedValue(mockDiets);
 
     const result = await service.findAll();
-
-    expect(result).toEqual(diets);
+    expect(result).toEqual(mockDiets);
     expect(findMock).toHaveBeenCalled();
   });
 
-  it('FindAll Diets: should throw NotFoundException if no diets are found', async () => {
-    findMock.mockResolvedValue([]);
-
-    try {
-      await service.findAll();
-    } catch (error) {
-      expect(error).toBeInstanceOf(NotFoundException);
-      expect(error.message).toEqual('No se encontro ninguna dieta');
-    }
+  it('FindAll Diets: should throw NotFoundException when no diets are found', async () => {
+    jest.spyOn(dietRepository, 'find').mockResolvedValue([]);
+    await expect(service.findAll()).rejects.toThrowError(NotFoundException);
   });
 
-  it('Create Diet: should throw BadRequestException if the is too short', async () => {
+  it('Create Diet: should create a new diet', async () => {
     const createDietDto: CreateDietDto = {id: 1, name: 'Baja en grasas'};
-
-    try {
-      await service.create(createDietDto);
-    } catch (error) {
-      expect(error).rejects.toThrow(ConflictException);
-      expect(error.message).toEqual('El nombre debe tener al menos 3 caracteres');
-    }
-  });
-
-  it('Create Diet: should throw ConflictException if a diet with the same is and name exists', async() => {
-    const createDietDto: CreateDietDto = {id: 1, name: 'Baja en grasas'};
-    const existingDiet = {id: 1, name: 'Baja en grasas'};
-
-    createMock.mockReturnValue(createDietDto);
-    service['dietRepository'].findOne = jest.fn().mockResolvedValue(existingDiet);
-
-    try {
-      await service.create(createDietDto);
-    } catch (error) {
-      expect(error).toBeInstanceOf(ConflictException);
-      expect(error.message).toEqual('Ya existe una dieta con ese Id y ese nombre');
-    }
-  });
-
-  it('FindOne Diet: should return a diet by id is valid', async () => {
-    const diet = new Diet();
-    diet.id = 1;
-    diet.name = 'Baja en grasas';
-
-    const findOneSpy = jest.spyOn(dietRepository,'findOne');
-    findOneSpy.mockResolvedValue(diet);
     
-    const result = await service.findOne(1);
+    jest.spyOn(dietRepository, 'findOne').mockResolvedValue(null);
+    jest.spyOn(dietRepository, 'create').mockReturnValue(createDietDto);
+    jest.spyOn(dietRepository, 'save').mockResolvedValue(createDietDto);
 
-    expect(result).toBe(diet);
-    expect(findOneSpy).toHaveBeenCalledWith({ where: { id: 1 } });
-    findOneSpy.mockRestore();
+    const result = await service.create(createDietDto);
+    expect(result).toEqual(createDietDto);
   });
 
-  it('FindOne Diet: should throw NotFoundException when no diet with the given id is found', async () => {
-    const findOneSpy = jest.spyOn(dietRepository,'findOne');
-    findOneSpy.mockResolvedValue(null);
-    const id = 1;
+  it('Create Diet: should throw ConflictException if diet with the same name already exists', async () => {
+    const createDietDto: CreateDietDto = {id: 1, name: 'Baja en grasas'};
 
-    try {
-      await service.findOne(id);
-    } catch (error) {
-      expect(error).toBeInstanceOf(NotFoundException);
-      expect(error.message).toBe(`La dieta con el Id ${id} no existe`);
-    }
+    jest.spyOn(dietRepository, 'findOne').mockResolvedValue({ id: 1, name: 'Baja en grasas' });
+    await expect(service.create(createDietDto)).rejects.toThrowError(ConflictException);
   });
 
-  it('UpdateDiet: Should update an existing diet', async () => {
-		const id = 1;
-		const updateDietDto = {id: 1, name: 'Baja en sodio'};
-		await expect(service.update(id, updateDietDto)).rejects.toThrowError(NotFoundException);
+  it('Create Diet: should throw InternalServerErrorException for other errors', async () => {
+    const createDietDto: CreateDietDto = {id: 1, name: 'Baja en sodio' };
+    
+    jest.spyOn(dietRepository, 'findOne').mockRejectedValue(new Error('Some error'));
+    await expect(service.create(createDietDto)).rejects.toThrowError(InternalServerErrorException);
+  });
 
-		expect(updateDietDto).toBeDefined();
-		expect(updateDietDto.name).toBe('Baja en sodio');
-	});
-	
-	it('UpdateDiet: Should throw a BadRequestException when providing a non-numeric ID', async () => {
-    const id = 1;
-    const updateDietDto = {id: 1, name: 'Baja en grasas'};
-    await expect(service.update(id, updateDietDto)).rejects.toThrowError(NotFoundException);
-    expect(updateDietDto).toBeDefined();
-	});
-	
-	it('UpdateDiet: Should throw a NotFoundException for a non-existent ID', async () => {
-    const id = 9999;
-    const updateDietDto = {id, name: 'Baja en grasas'};
-    await expect(service.update(id, updateDietDto)).rejects.toThrowError(NotFoundException);
-    expect(updateDietDto).toBeDefined();
-	});
+  it('FindOne Diet: should return a diet by id', async () => {
+    const dietId = 1;
+    const mockDiet = { id: dietId, name: 'Baja en sodio' };
+    jest.spyOn(dietRepository, 'findOne').mockResolvedValue(mockDiet);
 
-	it('UpdateDiet: Should throw BadRequestException for invalid fields in updateDietDto', async () => {
+    const result = await service.findOne(dietId);
+
+    expect(result).toEqual(mockDiet);
+  });
+
+  it('FindOne Diet: should throw NotFoundException if diet with the given id does not exist', async () => {
+    const dietId = 2;
+    jest.spyOn(dietRepository, 'findOne').mockResolvedValue(null);
+
+    await expect(service.findOne(dietId)).rejects.toThrowError(NotFoundException);
+  });
+
+  it('UpdateDiet: should update and return the updated diet', async () => {
+    const dietId = 1;
+    const updateDietDto: UpdateDietDto = {id: 1, name: 'Baja en gluten' };
+    const existingDiet = { id: dietId, name: 'Baja en sodio' };
+
+    jest.spyOn(dietRepository, 'findOne').mockResolvedValue(existingDiet);
+
+    const result = await service.update(dietId, updateDietDto);
+
+    expect(result).toEqual({ ...existingDiet, name: 'Baja en gluten' });
+  });
+
+  it('UpdateDiet: should throw BadRequestException for invalid fields in updateDietDto', async () => {
     const id = 1; 
     const updateDietDto = {id, name: 'Baja en grasas'};
     await expect(service.update(id, updateDietDto)).rejects.toThrowError(NotFoundException);
     expect(updateDietDto).toBeDefined();
 	});
+
+  it('UpdateDiet: should throw NotFoundException if diet with the given id does not exist', async () => {
+    const dietId = 2;
+    const updateDietDto: UpdateDietDto = {id: 1, name: 'Baja en carbohidratos' };
+
+    jest.spyOn(dietRepository, 'findOne').mockResolvedValue(null);
+
+    await expect(service.update(dietId, updateDietDto)).rejects.toThrowError(NotFoundException);
+	});
 	
-  it('DeleteDiet: should remove an existing diet successfully', async () => {
-    const id = 1;
-    const existingDiet = null;
+  it('DeleteDiet: should remove and return the removed diet', async () => {
+    const dietId = 1;
+    const existingDiet = { id: dietId, name: 'Baja en grasas' };
 
-    findOneMock.mockResolvedValue(existingDiet);
+    jest.spyOn(dietRepository, 'findOne').mockResolvedValue(existingDiet);
+    jest.spyOn(dietRepository, 'remove').mockResolvedValue(existingDiet);
 
-    try{
-      await service.remove(id);
-      fail('La excepción NotFoundException no fue lanzada.');
-    }catch(error){
-      
-      expect(error).toBeInstanceOf(NotFoundException);
-      expect(error.message).toBe(`La dieta con el Id ${id} no existe`);
-    }
+    const result = await service.remove(dietId);
 
-    expect(deleteMock).not.toHaveBeenCalled();
+    expect(result).toEqual(existingDiet);
   });
 
-  it('DeleteDiet: should throw NotFoundException when trying to remove a non-existent diet', async () => {
+  it('DeleteDiet: should throw NotFoundException if diet with the given id does not exist', async () => {
+    const dietId = 2;
 
-    findOneMock.mockResolvedValue(null);
-    
-    try{
-      await service.remove(1);
-    }catch(error){
-      expect(error).toBeInstanceOf(NotFoundException);
-      expect(error.message).toEqual('La dieta con el Id 1 no existe');
-    }
+    jest.spyOn(dietRepository, 'findOne').mockResolvedValue(null);
+
+    await expect(service.remove(dietId)).rejects.toThrowError(NotFoundException);
   });
-
-  it('DeleteDiet: should throw InternalServerErrorException on database error', async () => {
-
-    findOneMock.mockResolvedValue({ id: 1, name: 'Baja en grasas' });
-    deleteMock.mockResolvedValue(new Error('Database error'));
-    await expect(service.remove(1)).rejects.toThrow(NotFoundException);
-  });
-
 });
