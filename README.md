@@ -1,40 +1,45 @@
+---
+runme:
+  id: 01HFF5NJ1VQ4YDEN6ERQWPZ1PG
+  version: v2.0
+---
+
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
 </p>
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+## Run in development
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+1. Clone the repository
+2. Execute
 
-## Description
+```sh {"id":"01HFF5NJ1VQ4YDEN6ERD7M8G3A"}
+yarn install
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Installation
-
-```bash
-$ yarn install
 ```
+
+3. You must have Nest CLI installed
+
+```sh {"id":"01HFF5NJ1VQ4YDEN6ERG85P73B"}
+npm i -g @nestjs/cli
+
+```
+
+4. Get up the database
+
+```sh {"id":"01HFF5NJ1VQ4YDEN6ERHF43MKN"}
+docker-compose up -d
+
+```
+
+## Used Stack
+
+* MySQL
+* Nest
 
 ## Running the app
 
-```bash
+```bash {"id":"01HFF5NJ1VQ4YDEN6ERJCJ7MJN"}
 # development
 $ yarn run start
 
@@ -43,11 +48,12 @@ $ yarn run start:dev
 
 # production mode
 $ yarn run start:prod
+
 ```
 
 ## Test
 
-```bash
+```bash {"id":"01HFF5NJ1VQ4YDEN6ERP2AHJJX"}
 # unit tests
 $ yarn run test
 
@@ -56,18 +62,34 @@ $ yarn run test:e2e
 
 # test coverage
 $ yarn run test:cov
+
 ```
 
-## Support
+## Description of RESTfull API using Swagger
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+### Create endpoint documentation
 
-## Stay in touch
+```bash {"id":"01HFF5NJ1VQ4YDEN6ERPC4AC57"}
+# Installation
+$ npm install --save @nestjs/swagger
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+# open de main.ts file and initialize Swagger using the SwaggerModule class:
+$ const config = new DocumentBuilder()
+    .setTitle('Cats example')
+    .setDescription('The cats API description')
+    .setVersion('1.0')
+    .addTag('cats')
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, document);
 
-## License
+# Now you can run the following command to start the HTTP server:
+$ npm run start
+```
 
-Nest is [MIT licensed](LICENSE).
+#While the application is running, open your browser and navigate to http://localhost:3000/api. You should see the Swagger UI.
+
+<p align="center">
+  <a href="http://nestjs.com/" target="blank"><img src="https://docs.nestjs.com/assets/swagger1.png" width="400" alt="" /></a>
+</p>
+# As you can see, the SwaggerModule automatically reflects all of your endpoints.
