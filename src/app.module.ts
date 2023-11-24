@@ -5,10 +5,9 @@ import { dataSourceOptions } from 'db/data-source';
 import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [TypeOrmModule.forRoot(dataSourceOptions),
-            ConfigModule.forRoot({
-              isGlobal: true,
-            }), DietsModule],
+  imports: [TypeOrmModule.forRoot(dataSourceOptions), DietsModule,
+            ConfigModule.forRoot({isGlobal: true})
+          ],
   
   controllers: [],
   providers: [],
